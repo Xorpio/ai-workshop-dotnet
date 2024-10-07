@@ -1,0 +1,40 @@
+﻿@page
+@model YourAppNamespace.Pages.IndexModel
+
+<h1>Welcome to the Card Game!</h1>
+<p>Click the button below to start a new game.</p>
+
+<!-- Button to start a new game -->
+<button id="startNewGame" class="btn btn-primary" onclick="startNewGame()">Start New Game</button>
+
+<!-- Placeholder for error message -->
+<div id="errorMessage" class="text-danger" style="display:none;"></div>
+
+<script>
+    async function startNewGame() {
+        // Hide any previous error messages
+        document.getElementById('errorMessage').style.display = 'none';
+
+        try {
+            // Fetch the deck_id by calling the NewGame endpoint
+            const response = await fetch('/api/deck/newgame', { method: 'POST' });
+
+            if (!response.ok) {
+                throw new Error('Failed to retrieve deck ID');
+            }
+
+            const data = await response.json();
+
+            if (data.deck_id) {
+                // Redirect to the game page with the deck_id
+                window.location.href = `/game/${data.deck_id}`;
+            } else {
+                throw new Error('No deck ID received');
+            }
+        } catch (error) {
+            // Display the error message
+            document.getElementById('errorMessage').innerText = error.message;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+    }
+</script>

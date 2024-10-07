@@ -1,0 +1,50 @@
+@page "/game/{deckId}"
+
+@{
+    var deckId = RouteData.Values["deckId"];
+}
+
+<h1>Game: @deckId</h1>
+
+<div id="cards-container">
+    <!-- Cards will be rendered here -->
+</div>
+
+<p id="error-message" style="color:red;"></p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the deck ID from the route
+        const deckId = "@deckId";
+        const cardsContainer = document.getElementById('cards-container');
+        const errorMessage = document.getElementById('error-message');
+
+        // Function to fetch cards from the API
+        async function fetchCards() {
+            try {
+                const response = await fetch(`/api/deck/${deckId}/draw`);
+                const data = await response.json();
+
+                if (response.ok && data.cards) {
+                    // Render the cards
+                    data.cards.forEach(card => {
+                        const img = document.createElement('img');
+                        img.src = card.image; // Use the SVG image from the API response
+                        img.alt = `${card.value} of ${card.suit}`;
+                        img.style.marginRight = "10px"; // Add some spacing between cards
+                        cardsContainer.appendChild(img);
+                    });
+                } else {
+                    // Handle error if the API request failed
+                    errorMessage.textContent = data.message || "Failed to load cards. Please try again.";
+                }
+            } catch (error) {
+                errorMessage.textContent = "Error occurred while fetching cards. Please try again.";
+                console.error('Error fetching cards:', error);
+            }
+        }
+
+        // Call the fetchCards function to load the cards on page load
+        fetchCards();
+    });
+</script>
